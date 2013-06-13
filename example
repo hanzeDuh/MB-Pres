@@ -1,0 +1,522 @@
+###  	Economy Overview		----------------------------------------------------------------------
+	
+  ("economy_overview", 0, mesh_load_window, #mesh_companion_overview
+   [
+     (ti_on_presentation_load,
+      [
+	    (presentation_set_duration, 999999),
+        (set_fixed_point_multiplier, 1000),
+		
+		###HEADLINES###
+		(assign, ":pos_x", 120),
+		(assign, ":pos_y", 680),
+		(assign, ":size", pos0),
+		(position_set_x, ":size", 520),
+		(position_set_y, ":size", 675),
+
+        (create_text_overlay, reg1, "@Town", tf_center_justify),
+    	(overlay_set_size, reg1, ":size"),
+ 		(position_set_x, pos1, ":pos_x"),
+        (position_set_y, pos1, ":pos_y"),
+        (overlay_set_position, reg1, pos1),
+		
+        (create_text_overlay, reg1, "@Population", tf_center_justify),
+       	(overlay_set_size, reg1, ":size"),
+		(val_add, ":pos_x", 90),
+ 		(position_set_x, pos1, ":pos_x"),
+        (overlay_set_position, reg1, pos1),	
+
+        (create_text_overlay, reg1, "@Prosperity", tf_center_justify),
+       	(overlay_set_size, reg1, ":size"),
+		(val_add, ":pos_x", 90),
+ 		(position_set_x, pos1, ":pos_x"),
+        (overlay_set_position, reg1, pos1),
+		
+        (create_text_overlay, reg1, "@Credits", tf_center_justify),
+       	(overlay_set_size, reg1, ":size"),
+		(val_add, ":pos_x", 80),
+ 		(position_set_x, pos1, ":pos_x"),
+        (overlay_set_position, reg1, pos1),		
+		
+		(str_clear, s0),
+
+		(create_text_overlay, reg0, s0, tf_scrollable),		# Container to display center info
+        (position_set_x, pos1, 0),
+        (position_set_y, pos1, 80),
+        (overlay_set_position, reg0, pos1),
+        (position_set_x, pos1, 450),
+        (position_set_y, pos1, 570),
+        (overlay_set_area_size, reg0, pos1),
+		
+		(set_container_overlay, reg0),		
+		
+		(assign, ":pos_x", 0),
+		(assign, ":pos_y", 547),
+		(str_clear, s9),	
+		(str_clear, s8),
+		
+		
+        (assign, reg2, 0),#population/prosperity/credits
+
+		
+		(try_for_range, ":center_no", towns_begin, towns_end),
+			(party_get_slot, ":population", ":center_no", slot_center_population),
+			(party_get_slot, ":prosperity", ":center_no", slot_town_prosperity),
+			(party_get_slot, ":credits", ":center_no", slot_trade_credits),
+		
+			#center center name
+			(val_add, ":pos_x", 100), 
+			(str_store_party_name,s9, ":center_no"),
+			(str_store_string, s1, "@{s9}"),
+			(create_text_overlay, reg1, s1, tf_left_align),
+			(position_set_x, pos3, ":pos_x"),
+			(position_set_y, pos3, ":pos_y"),
+			(overlay_set_position, reg1, pos3),
+			(position_set_x, pos3, 750),
+			(position_set_y, pos3, 850),
+			(overlay_set_size, reg1, pos3),
+
+			#population of city
+			(val_add, ":pos_x", 100),  
+			(assign, reg2, ":population"),
+			(create_text_overlay, reg1, "@{reg2}", tf_left_align),
+			(position_set_x, pos3, ":pos_x"),
+			(position_set_y, pos3, ":pos_y"),
+			(overlay_set_position, reg1, pos3),
+			(position_set_x, pos3, 750),
+			(position_set_y, pos3, 850),
+			(overlay_set_size, reg1, pos3),
+
+			#prosperity of city
+			(val_add, ":pos_x", 90),  
+			(assign, reg2, ":prosperity"),
+			(str_store_string, s1, "@{reg2}"),
+			(create_text_overlay, reg1, s1, tf_left_align),
+			(position_set_x, pos3, ":pos_x"),
+			(position_set_y, pos3, ":pos_y"),
+			(overlay_set_position, reg1, pos3),
+			(position_set_x, pos3, 750),
+			(position_set_y, pos3, 850),
+			(overlay_set_size, reg1, pos3),
+			
+			(val_add, ":pos_x", 80),  
+			(assign, reg2, ":credits"),
+			(str_store_string, s1, "@{reg2}"),
+			(create_text_overlay, reg1, s1, tf_left_align),
+			(position_set_x, pos3, ":pos_x"),
+			(position_set_y, pos3, ":pos_y"),
+			(overlay_set_position, reg1, pos3),
+			(position_set_x, pos3, 750),
+			(position_set_y, pos3, 850),
+			(overlay_set_size, reg1, pos3),		
+
+
+			(assign, ":pos_x", 0),
+			(val_sub, ":pos_y", 23),#linebreak 
+		(try_end), #Center-Bank Loop End
+
+	  (set_container_overlay, -1),
+
+###		Combo Button to choose towns 				------------------------
+	  
+	  	(position_set_x, pos1, 580),
+		(position_set_y, pos1, 690),
+        (create_combo_button_overlay, "$g_presentation_obj_1"),	#Combo Button 
+        (overlay_set_position, "$g_presentation_obj_1", pos1),
+		(overlay_set_size, "$g_presentation_obj_1", ":size"),
+		
+		(assign, ":slot", 0),
+		(try_for_range, ":town_no", towns_begin, towns_end),
+			(str_store_party_name, s2, ":town_no"),
+			(overlay_add_item, "$g_presentation_obj_1", s2),
+			(overlay_set_val, "$g_presentation_obj_1", reg3),
+			(troop_set_slot, "trp_temp_array_a", ":slot", ":town_no"), #this way the troop slot # = overlay combo box index #
+			(val_add, ":slot", 1),
+		(try_end),
+		
+		(try_begin), 
+         (neq, reg3, -1),
+         (overlay_set_val, "$g_presentation_obj_1", reg3),
+		 (troop_get_slot, ":town_no", "trp_temp_array_a", reg3),
+		 (str_store_party_name, s13, ":town_no"),
+         (overlay_set_text, "$g_presentation_obj_1", s13),	
+        (try_end),	
+
+###		Info text about towns						 ------------------------
+		
+		(str_store_string, s2, s3),
+		(create_text_overlay, reg1, s2, tf_double_space|tf_scrollable),  ##Describes the town
+        (position_set_x, pos1, 480),
+        (position_set_y, pos1, 100),
+        (overlay_set_position, reg1, pos1),
+        (position_set_x, pos1, 520),
+        (position_set_y, pos1, 560),
+        (overlay_set_area_size, reg1, pos1),
+	    (overlay_set_size, reg1, ":size"),
+		
+###		Combo Button to switch between Towns, Villages, Castles	--------------
+
+
+	  	(position_set_x, pos1, 730),
+		(position_set_y, pos1, 690),
+        (create_combo_button_overlay, "$g_presentation_obj_2"),	#Combo Button 
+        (overlay_set_position, "$g_presentation_obj_2", pos1),
+		(overlay_set_size, "$g_presentation_obj_2", ":size"),
+		
+		(overlay_add_item, "$g_presentation_obj_2", "@Town"),
+		(overlay_add_item, "$g_presentation_obj_2", "@Castle"),
+		(overlay_add_item, "$g_presentation_obj_2", "@Village"),		#Needed?
+		
+###		Checkbox to work on selected / All Towns	---------------------------
+
+		(create_check_box_overlay, "$g_presentation_obj_3", "mesh_checkbox_off", "mesh_checkbox_on"),
+        (position_set_x, pos1, 750),
+        (position_set_y, pos1, 650),
+        (overlay_set_position, "$g_presentation_obj_3", pos1),	
+
+		(create_text_overlay, reg1, "@Apply to all", tf_left_align),
+		(position_set_x, pos3, 780),
+		(position_set_y, pos3, 650),
+		(overlay_set_position, reg1, pos3),		
+		(overlay_set_size, reg1, ":size"),
+		
+		(try_begin),
+			(neq, reg4, -1),
+			(overlay_set_val, "$g_presentation_obj_3", reg4),
+		(try_end),
+
+		
+###		Buttons to update selected town / All towns	----------------------------
+
+		(create_button_overlay, "$g_presentation_obj_4", "@Do local production."), 
+        (position_set_x, pos1, 780),
+        (position_set_y, pos1, 600),
+        (overlay_set_position, "$g_presentation_obj_4", pos1),
+		(position_set_x, ":size", 650),
+		(position_set_y, ":size", 800),
+		(overlay_set_size, "$g_presentation_obj_4", ":size"),
+		
+		(create_button_overlay, "$g_presentation_obj_5", "@prosperity local"), 
+        (position_set_x, pos1, 780),
+        (position_set_y, pos1, 575),
+        (overlay_set_position, "$g_presentation_obj_5", pos1),
+		(position_set_x, ":size", 650),
+		(position_set_y, ":size", 800),
+		(overlay_set_size, "$g_presentation_obj_5", ":size"),
+		
+		(create_button_overlay, "$g_presentation_obj_6", "@prosperity caravan"), 
+        (position_set_x, pos1, 780),
+        (position_set_y, pos1, 550),
+        (overlay_set_position, "$g_presentation_obj_6", pos1),
+		(position_set_x, ":size", 650),
+		(position_set_y, ":size", 800),
+		(overlay_set_size, "$g_presentation_obj_6", ":size"),
+		
+		(create_button_overlay, "$g_presentation_obj_7", "@Reset Storage"), 
+        (position_set_x, pos1, 780),
+        (position_set_y, pos1, 525),
+        (overlay_set_position, "$g_presentation_obj_7", pos1),
+		(position_set_x, ":size", 650),
+		(position_set_y, ":size", 800),
+		(overlay_set_size, "$g_presentation_obj_7", ":size"),
+
+		(create_button_overlay, "$g_presentation_obj_8", "@Do Siege or Raid / Not done."), 
+        (position_set_x, pos1, 780),
+        (position_set_y, pos1, 500),
+        (overlay_set_position, "$g_presentation_obj_8", pos1),
+		(position_set_x, ":size", 650),
+		(position_set_y, ":size", 800),
+		(overlay_set_size, "$g_presentation_obj_8", ":size"),		
+		
+		(create_button_overlay, "$g_presentation_obj_9", "@Pop Development"), 
+        (position_set_x, pos1, 780),
+        (position_set_y, pos1, 475),
+        (overlay_set_position, "$g_presentation_obj_9", pos1),
+		(position_set_x, ":size", 650),
+		(position_set_y, ":size", 800),
+		(overlay_set_size, "$g_presentation_obj_9", ":size"),
+
+		(create_button_overlay, "$g_presentation_obj_10", "@Pop Up"), 
+        (position_set_x, pos1, 780),
+        (position_set_y, pos1, 450),
+        (overlay_set_position, "$g_presentation_obj_10", pos1),
+		(position_set_x, ":size", 650),
+		(position_set_y, ":size", 800),
+		(overlay_set_size, "$g_presentation_obj_10", ":size"),
+		
+		(create_button_overlay, "$g_presentation_obj_11", "@Pop Down"), 
+        (position_set_x, pos1, 780),
+        (position_set_y, pos1, 425),
+        (overlay_set_position, "$g_presentation_obj_11", pos1),
+		(position_set_x, ":size", 650),
+		(position_set_y, ":size", 800),
+		(overlay_set_size, "$g_presentation_obj_11", ":size"),		
+
+		(create_button_overlay, "$g_presentation_obj_12", "@Prosp Up"), 
+        (position_set_x, pos1, 780),
+        (position_set_y, pos1, 400),
+        (overlay_set_position, "$g_presentation_obj_12", pos1),
+		(position_set_x, ":size", 650),
+		(position_set_y, ":size", 800),
+		(overlay_set_size, "$g_presentation_obj_12", ":size"),
+
+		(create_button_overlay, "$g_presentation_obj_13", "@Prosp Down"), 
+        (position_set_x, pos1, 780),
+        (position_set_y, pos1, 375),
+        (overlay_set_position, "$g_presentation_obj_13", pos1),
+		(position_set_x, ":size", 650),
+		(position_set_y, ":size", 800),
+		(overlay_set_size, "$g_presentation_obj_13", ":size"),
+		
+###		Combo Button to select Item
+
+	  	(position_set_x, pos1, 880),
+		(position_set_y, pos1, 690),
+        (create_combo_button_overlay, "$g_presentation_obj_14"),	#Combo Button 
+        (overlay_set_position, "$g_presentation_obj_14", pos1),
+		(position_set_x, ":size", 520),
+		(position_set_y, ":size", 600),		
+		(overlay_set_size, "$g_presentation_obj_14", ":size"),
+		
+		(assign, ":slot", 0),
+		(try_for_range, ":item_no", trade_goods_begin, trade_goods_end),
+			(str_store_item_name, s2, ":item_no"),
+			(overlay_add_item, "$g_presentation_obj_10", s2),
+			(overlay_set_val, "$g_presentation_obj_10", reg5),
+			(troop_set_slot, "trp_temp_array_b", ":slot", ":item_no"), #this way the troop slot # = overlay combo box index #
+			(val_add, ":slot", 1),
+		(try_end),
+
+		
+###		Leave Presentation Button					----------------------------
+
+	    (create_game_button_overlay, "$g_Return_to_menu", "@_Return to menu_"),	 
+	    (position_set_x, pos1, 100),
+        (position_set_y, pos1, 23),
+        (overlay_set_position, "$g_Return_to_menu", pos1),
+		
+	  ]),
+	 (ti_on_presentation_event_state_change,								#presentation uses reg0-reg5 / reg0, reg1, reg2 can be reused in consequences / reg3, reg4, reg5 cannot
+     [
+        (store_trigger_param_1, ":object"),
+		(store_trigger_param_2, ":value"),
+		(try_begin), 
+			(eq, ":object", "$g_presentation_obj_1"), 						#Combo Box - Town Select
+			(assign, reg3, ":value"),										#stores slot that stores town
+			(troop_get_slot, ":town_no", "trp_temp_array_a", reg3),
+			(call_script, "script_get_town_info", ":town_no"),	#Output: reg20/total production, reg21/total demand, reg22/surplus, reg23/profits
+																#Stores info in s3
+			(start_presentation, "prsnt_economy_overview"),
+        (else_try),
+			(eq, ":object", "$g_presentation_obj_2"),			#Combo Button to switch fief type
+			(assign, reg0, ":value"),
+			(display_message, "@Overlay is at {reg0}"),
+        (else_try),
+			(eq, ":object", "$g_presentation_obj_3"),			#Select all box
+			(assign, reg4, ":value"),
+			(display_message, "@Value is {reg4}"),
+        (else_try),	
+			(eq, ":object", "$g_presentation_obj_4"),			#Local Prod
+			(troop_get_slot, ":town_no", "trp_temp_array_a", reg3),
+			(display_message, "@Do local production"),
+			(try_begin),
+				(neq, reg3, -1),												# Instead of party type check
+				#(party_slot_eq, ":town_no", slot_party_type, spt_town),		# PROBLEM | Works fine the first time, after that doesnt recognize as town anymore, even when reselecting first
+				(try_begin),
+					(eq, reg4, 1),
+					(try_for_range, ":center_no", towns_begin, towns_end),
+						(call_script, "script_do_production", ":center_no"),
+					(try_end),
+				(else_try),	
+					(call_script, "script_do_production", ":town_no"),
+				(try_end),
+				
+				(call_script, "script_get_town_info", ":town_no"),	#Output: reg20/total production, reg21/total demand, reg22/surplus, reg23/profits
+			(else_try),
+				(display_message, "@Please select a town"),
+			(try_end),
+			(start_presentation, "prsnt_economy_overview"),
+        (else_try),
+			(eq, ":object", "$g_presentation_obj_5"),				# Local Prosperity growth
+			(troop_get_slot, ":town_no", "trp_temp_array_a", reg3),
+			(display_message, "@Do local growth"),
+			(try_begin),
+				(neq, reg3, -1),
+				(try_begin),
+					(eq, reg4, 1),
+					(try_for_range, ":center_no", towns_begin, towns_end),
+						(call_script, "script_local_growth", ":center_no"),
+						(call_script, "script_get_town_info", ":center_no"),						
+					(try_end),
+				(else_try),
+					(call_script, "script_local_growth", ":town_no"),
+					(call_script, "script_get_town_info", ":town_no"),
+				(try_end),
+			(else_try),
+				(display_message, "@Please select a town"),
+			(try_end),
+			(start_presentation, "prsnt_economy_overview"),
+        (else_try),													#Caravan trade
+			(eq, ":object", "$g_presentation_obj_6"),
+			(troop_get_slot, ":town_no", "trp_temp_array_a", reg3),
+			(display_message, "@Do local growth"),
+			(try_begin),
+				(neq, reg3, -1),
+				(try_begin),
+					(eq, reg4, 1),
+					(try_for_range, ":center_no", towns_begin, towns_end),
+					(call_script, "script_caravan_trade", ":center_no", "fac_kingdom_1"),	
+						(call_script, "script_get_town_info", ":center_no"),						
+					(try_end),
+				(else_try),					
+					(call_script, "script_caravan_trade", ":town_no", "fac_kingdom_1"),				#until a caravan/faction selection is added					
+					(call_script, "script_get_town_info", ":town_no"),
+				(try_end),
+			(else_try),
+				(display_message, "@Please select a town"),
+			(try_end),
+			(start_presentation, "prsnt_economy_overview"),					
+        (else_try),													#Reset storage
+			(eq, ":object", "$g_presentation_obj_7"),
+			(troop_get_slot, ":town_no", "trp_temp_array_a", reg3),			
+			(try_begin),
+				(neq, reg3, -1),
+				(try_begin),
+					(eq, reg4, 1),									#Reset all towns
+					(try_for_range, ":center_no", towns_begin, towns_end),
+						(try_for_range, ":item_no", trade_goods_begin, trade_goods_end),
+							(item_get_slot, ":slot_no", ":item_no", slot_item_slot),		
+							(party_set_slot, ":center_no", ":slot_no", 0),
+						(try_end),
+					(try_end),
+				(else_try),											#Reset selected town
+					(try_for_range, ":item_no", trade_goods_begin, trade_goods_end),
+						(item_get_slot, ":slot_no", ":item_no", slot_item_slot),		
+						(party_set_slot, ":town_no", ":slot_no", 0),
+					(try_end),					
+				(try_end),		
+			(else_try),
+				(display_message, "@Please select a town"),
+			(try_end),
+			(call_script, "script_get_town_info", ":town_no"),
+			(start_presentation, "prsnt_economy_overview"),			
+        (else_try),													#Pop Development
+			(eq, ":object", "$g_presentation_obj_9"),
+			(troop_get_slot, ":town_no", "trp_temp_array_a", reg3),			
+			(try_begin),
+				(neq, reg3, -1),
+				(try_begin),
+					(eq, reg4, 1),									#Reset all towns
+					(try_for_range, ":center_no", towns_begin, towns_end),
+						(call_script, "script_population_development", ":center_no"),
+					(try_end),
+				(else_try),											#Reset selected town
+					(call_script, "script_population_development", ":town_no"),
+				(try_end),		
+			(else_try),
+				(display_message, "@Please select a town"),
+			(try_end),			
+			(call_script, "script_get_town_info", ":town_no"),			
+			(start_presentation, "prsnt_economy_overview"),			
+        (else_try),													#Pop Up
+			(eq, ":object", "$g_presentation_obj_10"),
+			(troop_get_slot, ":town_no", "trp_temp_array_a", reg3),			
+			(try_begin),
+				(neq, reg3, -1),
+				(try_begin),
+					(eq, reg4, 1),
+					(try_for_range, ":center_no", towns_begin, towns_end),
+						(party_get_slot, ":population", ":center_no", slot_center_population),
+						(val_add, ":population", 1000),
+						(val_clamp, ":population", 8000, 30001),
+						(party_set_slot, ":center_no", slot_center_population, ":population"),
+					(try_end),
+				(else_try),
+					(party_get_slot, ":population", ":town_no", slot_center_population),
+					(val_add, ":population", 1000),
+					(val_clamp, ":population", 8000, 30001),
+					(party_set_slot, ":town_no", slot_center_population, ":population"),
+				(try_end),
+			(else_try),
+				(display_message, "@Please select a town"),
+			(try_end),			
+			(call_script, "script_get_town_info", ":town_no"),			
+			(start_presentation, "prsnt_economy_overview"),
+        (else_try),													#Pop Down
+			(eq, ":object", "$g_presentation_obj_11"),
+			(troop_get_slot, ":town_no", "trp_temp_array_a", reg3),			
+			(try_begin),
+				(neq, reg3, -1),
+				(try_begin),
+					(eq, reg4, 1),
+					(try_for_range, ":center_no", towns_begin, towns_end),
+						(party_get_slot, ":population", ":center_no", slot_center_population),
+						(val_sub, ":population", 1000),
+						(val_clamp, ":population", 8000, 30001),
+						(party_set_slot, ":center_no", slot_center_population, ":population"),
+					(try_end),
+				(else_try),
+					(party_get_slot, ":population", ":town_no", slot_center_population),
+					(val_sub, ":population", 1000),
+					(val_clamp, ":population", 8000, 30001),
+					(party_set_slot, ":town_no", slot_center_population, ":population"),
+				(try_end),
+			(else_try),
+				(display_message, "@Please select a town"),
+			(try_end),			
+			(call_script, "script_get_town_info", ":town_no"),			
+			(start_presentation, "prsnt_economy_overview"),				
+        (else_try),													#Prosp Up
+			(eq, ":object", "$g_presentation_obj_12"),
+			(troop_get_slot, ":town_no", "trp_temp_array_a", reg3),			
+			(try_begin),
+				(neq, reg3, -1),
+				(try_begin),
+					(eq, reg4, 1),
+					(try_for_range, ":center_no", towns_begin, towns_end),
+						(party_get_slot, ":prosperity", ":center_no", slot_town_prosperity),
+						(val_add, ":prosperity", 10),
+						(val_clamp, ":prosperity", 0, 101),
+						(party_set_slot, ":center_no", slot_town_prosperity, ":prosperity"),
+					(try_end),
+				(else_try),
+					(party_get_slot, ":prosperity", ":town_no", slot_town_prosperity),
+					(val_add, ":prosperity", 10),
+					(val_clamp, ":prosperity", 0, 101),
+					(party_set_slot, ":town_no", slot_town_prosperity, ":prosperity"),
+				(try_end),
+			(else_try),
+				(display_message, "@Please select a town"),
+			(try_end),			
+			(call_script, "script_get_town_info", ":town_no"),			
+			(start_presentation, "prsnt_economy_overview"),
+        (else_try),													#Prosp Down
+			(eq, ":object", "$g_presentation_obj_13"),
+			(troop_get_slot, ":town_no", "trp_temp_array_a", reg3),			
+			(try_begin),
+				(neq, reg3, -1),
+				(try_begin),
+					(eq, reg4, 1),
+					(try_for_range, ":center_no", towns_begin, towns_end),
+						(party_get_slot, ":prosperity", ":center_no", slot_town_prosperity),
+						(val_sub, ":prosperity", 10),
+						(val_clamp, ":prosperity", 0, 101),
+						(party_set_slot, ":center_no", slot_town_prosperity, ":prosperity"),
+					(try_end),
+				(else_try),
+					(party_get_slot, ":prosperity", ":town_no", slot_town_prosperity),
+					(val_sub, ":prosperity", 10),
+					(val_clamp, ":prosperity", 0, 101),
+					(party_set_slot, ":town_no", slot_town_prosperity, ":prosperity"),
+				(try_end),
+			(else_try),
+				(display_message, "@Please select a town"),
+			(try_end),			
+			(call_script, "script_get_town_info", ":town_no"),			
+			(start_presentation, "prsnt_economy_overview"),				
+		(else_try),													#Leave
+			(eq, ":object", "$g_Return_to_menu"),
+			(presentation_set_duration, 0),
+		(try_end),
+		]),
+	]),
